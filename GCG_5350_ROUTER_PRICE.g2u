@@ -1,0 +1,151 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.Try
+	
+	'TMCO Update Discounts from router reprice
+	'Runs on Hook 28310 (new Hook 8/22/08) Ghook file & RE0060GI program
+	V.Local.sSQL.Declare(String)
+	V.Local.stemp.Declare(String)
+	V.Local.ftemp.Declare(Float)
+	V.Local.iC.Declare(Long)
+	V.Local.sSequence.Declare(String)
+	V.Local.bNew.Declare(Boolean,False)
+	V.Local.dDate.Declare(Date)
+	V.Local.sTime.Declare(String)
+	V.Local.iVar.Declare(Long)
+	V.Local.iMinute.Declare(Long)
+	V.Local.iSecond.Declare(Long)
+	V.Local.iHour.Declare(Long)
+	
+	F.Intrinsic.UI.InvokeWaitDialog("Saving Quantities and Prices Discounts")
+	
+	V.Local.dDate.Set(V.Ambient.Date)
+	F.Intrinsic.Date.Hour(V.Ambient.Now,V.Local.iHour)
+	F.Intrinsic.Date.Minute(V.Ambient.Now,V.Local.iMinute)
+	F.Intrinsic.Date.Second(V.Ambient.Now,V.Local.iSecond)
+	F.Intrinsic.String.Build("{0}:{1}:{2}",V.Local.iHour,V.Local.iMinute,V.Local.iSecond,V.Local.sTime)
+	
+	F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+	F.Intrinsic.String.Concat("Select * from OE_DISCOUNTS where OE_DISC_KEY ='ORDDSC' and PART='",V.Passed.009002,"'",V.Local.sSQL)
+	F.ODBC.Connection!conx.OpenRecordsetRW("rstDisc",V.Local.sSQL)
+	
+	F.Intrinsic.Control.If(V.ODBC.conx!rstDisc.EOF,=,True)
+		F.ODBC.conx!rstDisc.AddNew
+		F.ODBC.conx!rstDisc.Set!OE_DISC_KEY("ORDDSC")
+		F.ODBC.conx!rstDisc.Set!FLAG_DISCOUNT("1")
+		F.ODBC.conx!rstDisc.Set!PART(V.Passed.009002)
+	F.Intrinsic.Control.EndIf
+	
+	F.ODBC.conx!rstDisc.Update
+	F.ODBC.conx!rstDisc.Close
+	
+	'Update Quanity
+	'Parse to Update SQL to input >999
+	
+	V.Local.QTY1.Declare(Long)
+	V.Local.QTY1.Set(V.Passed.009005)
+	V.Local.QTY2.Declare(Long)
+	V.Local.QTY2.Set(V.Passed.009006)
+	V.Local.QTY3.Declare(Long)
+	V.Local.QTY3.Set(V.Passed.009007)
+	V.Local.QTY4.Declare(Long)
+	V.Local.QTY4.Set(V.Passed.009008)
+	V.Local.QTY5.Declare(Long)
+	V.Local.QTY5.Set(V.Passed.009009)
+	V.Local.QTY6.Declare(Long)
+	V.Local.QTY6.Set(V.Passed.009010)
+	V.Local.QTY7.Declare(Long)
+	V.Local.QTY7.Set(V.Passed.009011)
+	V.Local.QTY8.Declare(Long)
+	V.Local.QTY8.Set(V.Passed.009012)
+	V.Local.QTY9.Declare(Long)
+	V.Local.QTY9.Set(V.Passed.009013)
+	
+	V.Local.PRICE1.Declare(Float)
+	V.Local.PRICE1.Set(V.Passed.009025)
+	V.Local.PRICE2.Declare(Float)
+	V.Local.PRICE2.Set(V.Passed.009026)
+	V.Local.PRICE3.Declare(Float)
+	V.Local.PRICE3.Set(V.Passed.009027)
+	V.Local.PRICE4.Declare(Float)
+	V.Local.PRICE4.Set(V.Passed.009028)
+	V.Local.PRICE5.Declare(Float)
+	V.Local.PRICE5.Set(V.Passed.009029)
+	V.Local.PRICE6.Declare(Float)
+	V.Local.PRICE6.Set(V.Passed.009030)
+	V.Local.PRICE7.Declare(Float)
+	V.Local.PRICE7.Set(V.Passed.009031)
+	V.Local.PRICE8.Declare(Float)
+	V.Local.PRICE8.Set(V.Passed.009032)
+	V.Local.PRICE9.Declare(Float)
+	V.Local.PRICE9.Set(V.Passed.009033)
+	
+	
+	
+	F.Intrinsic.String.Build("UPDATE OE_DISCOUNTS SET DISC_QTY_1 = '{0}', DISC_QTY_2 = '{1}', DISC_QTY_3 = '{2}', DISC_QTY_4 = '{3}', DISC_QTY_5 = '{4}', DISC_QTY_6 = '{5}', DISC_QTY_7 = '{6}', DISC_QTY_8 = '{7}', DISC_QTY_9 = '{8}'",V.Local.QTY1,V.Local.QTY2,V.Local.QTY3,V.Local.QTY4,V.Local.QTY5,V.Local.QTY6,V.Local.QTY7,V.Local.QTY8,V.Local.QTY9,V.LOCAL.sSQL)
+	F.Intrinsic.String.Build("{0}, DISC_PRICE_1 = '{1}', DISC_PRICE_2 = '{2}', DISC_PRICE_3 = '{3}', DISC_PRICE_4 = '{4}', DISC_PRICE_5 = '{5}', DISC_PRICE_6 = '{6}', DISC_PRICE_7 = '{7}', DISC_PRICE_8 = '{8}', DISC_PRICE_9 = '{9}' WHERE PART='{10}' AND OE_DISC_KEY='ORDDSC'",V.local.sSQL,V.Local.PRICE1,V.Local.PRICE2,V.Local.PRICE3,V.Local.PRICE4,V.Local.PRICE5,V.Local.PRICE6,V.Local.PRICE7,V.Local.PRICE8,V.Local.PRICE9,V.Passed.009002,V.Local.sSQL)
+	
+	F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+	
+	F.Intrinsic.String.Build("SELECT * FROM OE_DISC_QTY_PRC WHERE PART = '{0}'",V.Passed.009002,V.Local.sSQL)
+	F.ODBC.Connection!conx.OpenLocalRecordSetRW("rstOE",V.Local.sSQL)
+	
+	F.Intrinsic.Control.If(V.ODBC.conx!rstOE.EOF,=,True)
+		V.Local.bNew.Set(True)
+	F.Intrinsic.Control.EndIf
+	
+	F.ODBC.conx!rstOE.Close
+	
+	F.Intrinsic.Control.For(V.Local.iC,0,8,1)
+		F.Intrinsic.String.LPad(V.Local.iC,"0",3,V.Local.sSequence)
+		
+		F.Intrinsic.Math.Add(V.Local.iC,1,V.Local.iVar)
+		
+		F.Intrinsic.Control.If(V.Local.bNew)
+			F.Intrinsic.String.Build("INSERT INTO OE_DISC_QTY_PRC (PART,LOC,SEQ,DISC_QTY,DISC_PRICE,CHG_DATE,CHG_TIME,CHG_BY,CHG_PGM) VALUES ('{0}','','{1}','{2}','{3}','{4}','{5}','{6}','CUSTOM')",V.Passed.009002,V.Local.sSequence,V.Local.QTY[V.Local.iVar.String],V.Local.PRICE[V.Local.iVar.String],V.Local.dDate.PervasiveDate,V.Local.sTime,V.Caller.User,V.Local.sSQL)
+		F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("UPDATE OE_DISC_QTY_PRC SET DISC_QTY = '{0}', DISC_PRICE = '{1}', CHG_DATE = '{2}', CHG_TIME = '{3}', CHG_BY = '{4}', CHG_PGM = 'CUSTOM' WHERE PART = '{5}' AND SEQ = '{6}'",V.Local.QTY[V.Local.iVar.String],V.Local.PRICE[V.Local.iVar.String],V.Local.dDate.PervasiveDate,V.Local.sTime,V.Caller.User,V.Passed.009002,V.Local.sSequence,V.Local.sSQL)
+		F.Intrinsic.Control.EndIf
+		
+		F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+	F.Intrinsic.Control.Next(V.Local.iC)
+	
+	F.Intrinsic.UI.CloseWaitDialog
+	
+	F.Intrinsic.Control.CallSub(Unload)
+	
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(errorhandler, "Sub", V.Ambient.CurrentSubroutine, "ErrNo", V.Ambient.ErrorNumber, "ErrDesc", V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.errorhandler.Start
+F.Intrinsic.Control.Try
+	V.Local.sError.Declare(String)
+	
+	F.Intrinsic.String.Build("Error Occurred In: {0}{1}Error Number: {2}{1}With Description: {3}",V.Args.Sub,V.Ambient.NewLine,V.Args.ErrNo,V.Args.ErrDesc,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	
+	F.Intrinsic.Control.CallSub(Unload)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndTry
+Program.Sub.errorhandler.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.Try
+
+	F.ODBC.Connection!conx.Close
+	F.Intrinsic.Control.End
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndTry
+Program.Sub.Unload.End
